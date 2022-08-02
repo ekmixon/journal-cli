@@ -31,6 +31,6 @@ def preview(drafts):
         cmd.wait()
     except OSError as e:
         click.secho(
-            'Something went wrong when running "{}": {}'.format(
-                ' '.join(cmd), e),
-            fg='red')
+            f"""Something went wrong when running "{' '.join(cmd)}": {e}""",
+            fg='red',
+        )

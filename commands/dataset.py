@@ -33,10 +33,10 @@ def compute_md5(filename):
         md5 = hashlib.md5()
         with open(filename, "rb") as fh:
             while True:
-                bytes = fh.read(io.DEFAULT_BUFFER_SIZE)
-                if not bytes:
+                if bytes := fh.read(io.DEFAULT_BUFFER_SIZE):
+                    md5.update(bytes)
+                else:
                     break
-                md5.update(bytes)
         return md5.hexdigest()
     except Exception as e:
         return ''
@@ -70,9 +70,7 @@ def auto_parse_schema(location):
 
     _, ext = path.splitext(location.lower())
     if ext not in AUTO_PARSE_EXTS:
-        click.secho(
-            "Unrecognized extension {}, skipping parsing.".format(ext),
-            fg="yellow")
+        click.secho(f"Unrecognized extension {ext}, skipping parsing.", fg="yellow")
 
     size = path.getsize(location)
     if size > AUTO_PARSE_THRESHOLD:
@@ -91,17 +89,19 @@ def auto_parse_schema(location):
             df = pd.read_json(location)
         elif ext == ".parquet":
             df = pd.read_parquet(location)
-        elif ext == ".xls" or ext == ".xlsx":
+        elif ext in [".xls", ".xlsx"]:
             df = pd.read_excel(location)
 
         schema = [
-            "- {}: {} [No description]".format(field, str(kind))
+            f"- {field}: {str(kind)} [No description]"
             for field, kind in df.dtypes.to_dict().items()
         ]
 
+
         click.secho(
-            "{} fields automatically parsed. Please check schema for accuracy."
-            .format(len(schema)))
+            f"{len(schema)} fields automatically parsed. Please check schema for accuracy."
+        )
+
         return "\n".join(schema)
 
     except Exception as e:
@@ -147,14 +147,12 @@ def dataset(location, name):
     dataset_md_path = path.join(dataset_path, '_index.md')
 
     if path.exists(dataset_md_path):
-        click.secho(
-            'A dataset already exist in {}.'.format(dataset_path), fg='red')
+        click.secho(f'A dataset already exist in {dataset_path}.', fg='red')
         return
 
     template = load_dataset_template()
     if not path.exists(template):
-        click.secho(
-            'Error - Template "{}" not found.'.format(template), fg='red')
+        click.secho(f'Error - Template "{template}" not found.', fg='red')
         return
 
     TEMPLATE_CONTEXT['schema'] = auto_parse_schema(location)
@@ -168,8 +166,10 @@ def dataset(location, name):
         output_file.write(output)
 
     click.secho(
-        'Dataset {} was created with path "{}".'.format(name, dataset_md_path),
-        fg='green')
+        f'Dataset {name} was created with path "{dataset_md_path}".',
+        fg='green',
+    )
+
 
     if config['editor'].get('enabled'):
         launch_editor(dataset_md_path)

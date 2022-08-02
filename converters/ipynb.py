@@ -36,7 +36,7 @@ class IpynbConverter:
         """
         image_path = generate_image_path(self.post_slug, image_name)
         makedirs(path.dirname(image_path), exist_ok=True)
-        click.secho('Saving image to {}'.format(image_path), fg='green')
+        click.secho(f'Saving image to {image_path}', fg='green')
         with open(image_path, 'wb') as image_output:
             image_output.write(content)
 
@@ -60,9 +60,9 @@ class IpynbConverter:
         for image_path, content in images['outputs'].items():
             image_name = path.basename(image_path)
             self.save_image(image_name, content)
-        new_filename = '{}.md'.format(self.post_slug)
+        new_filename = f'{self.post_slug}.md'
         post_path = generate_post_path(new_filename)
-        click.secho('Saving post content to {}'.format(post_path), fg='green')
+        click.secho(f'Saving post content to {post_path}', fg='green')
         with open(post_path, 'w') as output:
             output.write(post)
         return post_path

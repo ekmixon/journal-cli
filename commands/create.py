@@ -56,16 +56,16 @@ def create(filename, template):
 
     while not path.exists(generate_author_path(config['username'])):
         click.secho(
-            'Author {} does not exist. Let\'s create that author now'.format(
-                config['username']),
-            fg='yellow')
+            f"Author {config['username']} does not exist. Let\'s create that author now",
+            fg='yellow',
+        )
+
         create_author(config['username'], None, None)
 
     # Handle the default case of making a new daily post
     daily = False
     if not filename:
-        filename = 'daily-log-{}.md'.format(
-            datetime.now().strftime('%m-%d-%Y'))
+        filename = f"daily-log-{datetime.now().strftime('%m-%d-%Y')}.md"
         daily = True
 
     filepath = generate_post_path(filename)
@@ -88,13 +88,11 @@ def create(filename, template):
         template = load_template(filename, daily=daily)
 
     if not path.exists(template):
-        click.secho(
-            'Error - Template "{}" not found.'.format(template), fg='red')
+        click.secho(f'Error - Template "{template}" not found.', fg='red')
 
     output = parse_template(template, TEMPLATE_CONTEXT)
     if path.exists(filepath):
-        click.secho(
-            'The file at "{}" already exists.'.format(filepath), fg='red')
+        click.secho(f'The file at "{filepath}" already exists.', fg='red')
         return
 
     # TODO: Make the directory if it doesn't exist
@@ -102,7 +100,7 @@ def create(filename, template):
     with open(filepath, 'w') as output_file:
         output_file.write(output)
 
-    click.secho('Post "{}" created.'.format(filepath), fg='green')
+    click.secho(f'Post "{filepath}" created.', fg='green')
 
     if config['editor'].get('enabled'):
         launch_editor(filepath)

@@ -48,14 +48,13 @@ def create_author(username, name, avatar):
     """
     if not username:
         username = config['username']
-    click.secho('Setting up the author for {}'.format(username), fg='green')
+    click.secho(f'Setting up the author for {username}', fg='green')
 
     while not username:
         username = click.prompt("Username")
     author_path = generate_author_path(username)
     if path.exists(author_path):
-        click.secho(
-            'An author already exists at {}'.format(author_path), fg='red')
+        click.secho(f'An author already exists at {author_path}', fg='red')
         return
 
     while not name:
@@ -64,31 +63,28 @@ def create_author(username, name, avatar):
         avatar = click.prompt("Path to avatar image")
         avatar = path.expanduser(avatar)
         if not path.exists(avatar):
-            click.secho(
-                'The file at {} does not exist'.format(avatar), fg='yellow')
+            click.secho(f'The file at {avatar} does not exist', fg='yellow')
             avatar = None
     TEMPLATE_CONTEXT = {'username': username, 'name': name}
 
     _, avatar_extension = path.splitext(avatar)
     author_content_path = generate_author_content_path(username)
     author_md_path = path.join(author_path, '_index.md')
-    author_avatar_path = path.join(author_path,
-                                   'avatar{}'.format(avatar_extension))
+    author_avatar_path = path.join(author_path, f'avatar{avatar_extension}')
 
     os.makedirs(author_path, exist_ok=True)
     os.makedirs(author_content_path, exist_ok=True)
 
     template_path = load_author_template()
     if not path.exists(template_path):
-        click.secho(
-            'No author template found at {}'.format(template_path), fg='red')
+        click.secho(f'No author template found at {template_path}', fg='red')
         return
 
     output = parse_template(template_path, TEMPLATE_CONTEXT)
     with open(author_md_path, 'w') as author_file:
         author_file.write(output)
     copyfile(avatar, author_avatar_path)
-    click.secho('Created author at {}'.format(author_path), fg='green')
+    click.secho(f'Created author at {author_path}', fg='green')
 
 
 @click.command()

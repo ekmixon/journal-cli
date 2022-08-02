@@ -64,9 +64,7 @@ def setup_config(config_path, config):
         dir_name, _ = path.split(journal_path)
 
         if not path.exists(dir_name):
-            click.secho(
-                'Directory does not exist: {}'.format(journal_path),
-                fg='yellow')
+            click.secho(f'Directory does not exist: {journal_path}', fg='yellow')
             journal_path = ""
     config['journal_path'] = journal_path
     try:
@@ -75,15 +73,17 @@ def setup_config(config_path, config):
         repo = git.Repo(config['journal_path'])
         if repo.remote().url != config['upstream_repo']:
             click.secho(
-                'Repository exists, but isn\'t pointing to {}'.format(
-                    config['upstream_repo']),
-                fg='red')
+                f"Repository exists, but isn\'t pointing to {config['upstream_repo']}",
+                fg='red',
+            )
+
     except Exception as e:
         try:
             click.secho(
-                'Cloning from {} to {}'.format(config['upstream_repo'],
-                                               config['journal_path']),
-                fg='green')
+                f"Cloning from {config['upstream_repo']} to {config['journal_path']}",
+                fg='green',
+            )
+
             # Using subprocess instead of GitPython to properly handle tracking
             # progress since this can take a bit of time.
             subprocess.check_output(
@@ -91,7 +91,7 @@ def setup_config(config_path, config):
             subprocess.check_output(['git', 'submodule', 'update', '--init'],
                                     cwd=config['journal_path'])
         except Exception as e:
-            click.secho('Error cloning repo: {}'.format(e), fg='red')
+            click.secho(f'Error cloning repo: {e}', fg='red')
             sys.exit(1)
 
     # Fallback to the correct username if not specified
@@ -99,8 +99,7 @@ def setup_config(config_path, config):
         config['username'] = environ.get('JOURNAL_USER', getpass.getuser())
 
     # Save the config
-    click.secho(
-        'Saving new configuration to: {}'.format(config_path), fg='green')
+    click.secho(f'Saving new configuration to: {config_path}', fg='green')
     with open(config_path, 'w') as config_output:
         config_output.write(toml.dumps(config))
 
@@ -114,8 +113,7 @@ def load_config(config_path=None):
             'JOURNAL_CONFIG', path.join(path.expanduser('~'), '.journal.toml'))
 
     if not path.exists(config_path):
-        click.secho(
-            'Configuration not found at "{}"'.format(config_path), fg='yellow')
+        click.secho(f'Configuration not found at "{config_path}"', fg='yellow')
         shutil.copy(
             path.abspath(path.join(path.dirname(__file__), 'journal.toml')),
             config_path)

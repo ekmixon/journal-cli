@@ -28,7 +28,7 @@ def convert(filename):
             path.join(config.get('journal_path'), POST_DIRECTORY, filename))
 
     if not path.exists(filename):
-        click.secho('File "{}" not found'.format(filename), fg='red')
+        click.secho(f'File "{filename}" not found', fg='red')
         return
 
     # Markdown is supported by default, so we don't need to convert it
@@ -40,7 +40,6 @@ def convert(filename):
 
     try:
         converted_filename = convert_file(filename)
-        click.secho(
-            'Converted post to {}'.format(converted_filename), fg='green')
+        click.secho(f'Converted post to {converted_filename}', fg='green')
     except Exception as e:
         click.secho(str(e), fg='red')

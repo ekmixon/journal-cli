@@ -28,11 +28,10 @@ def convert_file(filepath):
     if ext == '.md':
         return filepath
     if ext not in CONVERTERS:
-        raise ConversionError(
-            "We don't have a way to convert {} files yet".format(ext))
+        raise ConversionError(f"We don't have a way to convert {ext} files yet")
     try:
         converter_cls = CONVERTERS[ext]
         converter = converter_cls(filepath)
         return converter.convert()
     except Exception as e:
-        raise ConversionError('Error converting {}: {}'.format(filepath, e))
+        raise ConversionError(f'Error converting {filepath}: {e}')

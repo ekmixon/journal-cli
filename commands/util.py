@@ -44,7 +44,10 @@ def get_last_modified(directory):
             valid_files.extend(
                 fnmatch.filter(
                     [os.path.join(root, filename) for filename in files],
-                    '*{}'.format(extension)))
+                    f'*{extension}',
+                )
+            )
+
 
     return max(valid_files, key=os.path.getmtime)
 
@@ -56,8 +59,7 @@ def launch_editor(filepath):
         filepath {str} -- The file to open in the configured editor
     """
     command = [config['editor'].get('command')]
-    for arg in config['editor'].get('args'):
-        command.append(arg.format(filepath))
+    command.extend(arg.format(filepath) for arg in config['editor'].get('args'))
     try:
         cmd = subprocess.Popen(command)
         cmd.wait()
@@ -90,8 +92,7 @@ def parse_template(filepath, ctx):
     # Parse the Jinja2 template
     env.filters['strftime'] = datetimefilter
     j2_template = env.get_template(os.path.basename(filepath))
-    output = j2_template.render(ctx)
-    return output
+    return j2_template.render(ctx)
 
 
 def print_hugo_install_instructions():
@@ -144,8 +145,13 @@ def generate_post_path(filename):
     Returns:
         str -- A project path namespaced under team/<username>/<filename>
     """
-    project_path = os.path.join(config['journal_path'], 'content', 'post',
-                                'team/{}/'.format(config['username']))
+    project_path = os.path.join(
+        config['journal_path'],
+        'content',
+        'post',
+        f"team/{config['username']}/",
+    )
+
     if filename.startswith('daily-log'):
         project_path = os.path.join(project_path, 'daily')
     project_path = os.path.join(project_path, filename)

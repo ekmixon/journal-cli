@@ -28,9 +28,7 @@ def generate_commit_message(filename):
     """
 
     filename = path.basename(filename)
-    return 'Update to {} from {} at {} UTC'.format(filename,
-                                                   config['username'],
-                                                   datetime.now())
+    return f"Update to {filename} from {config['username']} at {datetime.now()} UTC"
 
 
 def deploy_git(filepath):
@@ -43,7 +41,7 @@ def deploy_git(filepath):
     repo.index.add([filepath, static_path])
     # List the files being committed
     for diff in repo.index.diff("HEAD"):
-        click.secho('[+] Adding {}'.format(diff.a_path), fg='green')
+        click.secho(f'[+] Adding {diff.a_path}', fg='green')
     repo.index.commit(generate_commit_message(filepath))
     # Pull the latest from upstream
     subprocess.check_output(['git', 'checkout', 'master'],
@@ -74,7 +72,7 @@ def push(filename):
             path.join(config.get('journal_path'), POST_DIRECTORY, filename))
 
     if not path.exists(filename):
-        click.secho('Post "{}" not found'.format(filename), fg='red')
+        click.secho(f'Post "{filename}" not found', fg='red')
         return
 
     post_filepath = path.relpath(
@@ -82,8 +80,7 @@ def push(filename):
 
     # Before we do anything, let's confirm that this is what the user is
     # expecting to do.
-    if not click.confirm(
-            click.style('Push {}?'.format(post_filepath), fg='yellow')):
+    if not click.confirm(click.style(f'Push {post_filepath}?', fg='yellow')):
         return
 
     click.secho('Pushing to the Journal', fg='green')
@@ -112,4 +109,4 @@ def push(filename):
                 (json.loads(fortune).strip()),
                 fg='green')
     except Exception as e:
-        click.secho('Error: {}'.format(e))
+        click.secho(f'Error: {e}')

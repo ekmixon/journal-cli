@@ -44,10 +44,10 @@ class RmdConverter:
         # [prefix].Rmd file, the [prefix]_blogdown.html file, and the
         # [prefix]_files/ folder.
         self.filename, _ = path.splitext(path.basename(self.filepath))
-        self.rmd_file = path.join(self.source_folder,
-                                  '{}.Rmd'.format(self.filename))
+        self.rmd_file = path.join(self.source_folder, f'{self.filename}.Rmd')
         self.blogdown_file = path.join(
-            self.source_folder, '{}_blogdown.html'.format(self.filename))
+            self.source_folder, f'{self.filename}_blogdown.html'
+        )
 
     def copy_images(self, post_slug):
         """Copies the figures and images into Journal
@@ -62,8 +62,7 @@ class RmdConverter:
             post_slug {str} -- The post slug used when creating the
                 destination filename
         """
-        image_source_directory = path.join('{}_files'.format(self.filename),
-                                           'figure-html')
+        image_source_directory = path.join(f'{self.filename}_files', 'figure-html')
         for dirpath, _, images in os.walk(
                 path.join(self.source_folder, image_source_directory)):
             for image in images:
@@ -77,11 +76,10 @@ class RmdConverter:
         """
         raw_yaml = ''
         with open(self.rmd_file, 'r') as rmd:
-            for line in rmd.readlines():
+            for line in rmd:
                 # Check if this is the ending tag
-                if line.strip() == YAML_BOUNDARY:
-                    if raw_yaml:
-                        break
+                if line.strip() == YAML_BOUNDARY and raw_yaml:
+                    break
                 raw_yaml += line
         front_matter = yaml.load(raw_yaml)
         # Trim the YAML to only the keys Hugo is known to support
@@ -102,20 +100,19 @@ class RmdConverter:
         """
         for filename in [self.rmd_file, self.blogdown_file]:
             if not path.exists(path.join(self.source_folder, filename)):
-                click.secho('Missing file: {}'.format(filename), fg='red')
+                click.secho(f'Missing file: {filename}', fg='red')
                 sys.exit(1)
 
     def generate_blogdown_html(self, img_dir):
         from bs4 import BeautifulSoup
         with open(self.blogdown_file, 'r') as html:
             soup = BeautifulSoup(html.read(), "html.parser")
-        files_dir = '{}_files'.format(self.filename)
+        files_dir = f'{self.filename}_files'
         # Update links to images to point to the new path
         for img in soup.find_all('img'):
             if not img['src'].startswith(files_dir):
                 continue
-            img['src'] = img['src'].replace(
-                '{}/figure-html/'.format(files_dir), '')
+            img['src'] = img['src'].replace(f'{files_dir}/figure-html/', '')
             img['src'] = path.join(img_dir, img['src'])
         return str(soup)
 
@@ -132,7 +129,7 @@ class RmdConverter:
                 fg='red')
             sys.exit(1)
         post_slug = generate_slug(front_matter['title'])
-        post_filename = '{}.html'.format(post_slug)
+        post_filename = f'{post_slug}.html'
         post_path = generate_post_path(post_filename)
         # Copy the image assets
         self.copy_images(post_slug)
